@@ -275,7 +275,7 @@ Presenting real-world cloud projects professionally
 
 Ubani Obiajulum Emmanuel
 Cloud & DevOps Engineer
-🔗 GitHub: https://github.com/Eaglewings966
+🔗 GitHub: https://github.com/Eaglewings966/aws-three-tier-terraform-deploy.git
 
 ⭐ Final Note
 
