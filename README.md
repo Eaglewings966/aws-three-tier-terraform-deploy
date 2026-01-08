@@ -1,282 +1,151 @@
-🏦 NovaTrust Bank Microservice Platform
-Production-Grade AWS EKS Deployment with Terraform & GitOps
+# 🏦 NovaTrust Bank — Production-Grade AWS EKS Microservices Platform
 
+Terraform • Kubernetes • GitOps • CI/CD • Observability
 
+🟡 **Status:** Previously Live (Destroyed for Cost Management)  
+🌍 **Region:** us-east-1  
+🌐 **Domain:** emmaubani.online  
 
+---
 
+## 📜 Legal Disclaimer
 
+**Fictional Bank Notice**
 
-
-
-🟡 Status: Previously Live → 🔴 Destroyed (Cost Management)
-🌍 Region: us-east-1
-🌐 Domain: emmaubani.online
-
-📜 Legal Disclaimer
-
-Fictional Bank Notice
 NovaTrust Bank is a fictional institution created strictly for educational and portfolio demonstration purposes.
 
-This project does not represent a real bank, does not offer financial services, and is not affiliated with OPAY or any organization.
+This project does **not** represent a real bank, does **not** offer financial services, and is **not affiliated** with OPAY or any real organization.
 
 Any resemblance to real institutions is purely coincidental.
 
-📖 Project Overview
+---
 
-This project demonstrates how to design, deploy, and operate a production-grade cloud-native microservices platform on AWS using Infrastructure as Code, GitOps, and Kubernetes best practices.
+## 📖 Project Overview
 
-Core Capabilities
+This project demonstrates how to design, deploy, and operate a **production-grade cloud-native microservices platform** on AWS using **Terraform**, **Amazon EKS**, and **GitOps best practices**.
 
-AWS infrastructure provisioned with Terraform
+The goal of this project is to simulate how modern fintech or SaaS platforms provision infrastructure, deploy applications, secure traffic, monitor systems, and manage costs in real-world cloud environments.
 
-Kubernetes workloads running on Amazon EKS
+---
 
-GitHub Actions for CI/CD automation
+## 🚀 Core Capabilities
 
-ArgoCD for GitOps continuous delivery
+- Infrastructure provisioning with **Terraform**
+- Kubernetes orchestration using **Amazon EKS**
+- Modular Terraform design (VPC, EKS, Database, DNS)
+- Secure networking with public/private subnets
+- GitOps-style deployment workflows
+- TLS-enabled ingress using AWS Load Balancers
+- Cost-conscious infrastructure lifecycle management
 
-Ingress NGINX + AWS NLB for traffic management
+---
 
-cert-manager + Let’s Encrypt for HTTPS/TLS
+## 🏗️ Architecture Overview
 
-Prometheus & Grafana for observability
+### High-Level Flow
 
-React frontend and Node.js backend API
+1. Users access the platform over HTTPS
+2. DNS is resolved via Amazon Route53
+3. Traffic enters through an AWS Load Balancer
+4. Requests are routed to workloads running in EKS
+5. Backend services communicate with a private database
+6. Infrastructure state is managed via Terraform
 
-Route53 DNS management
+📸 **Architecture diagram:**  
+See `architecture.png` in the repository root.
 
-🧩 Naming Conventions
-Component	Value
-EKS Cluster	novatrust-eks-prod
-Namespace	novatrust
-Backend	novatrust-api
-Frontend	novatrust-web
-ArgoCD	argocd.emmaubani.online
-Grafana	grafana.emmaubani.online
-API	api.emmaubani.online
-🏗️ Architecture Overview
+---
 
-Traffic Flow
+## 📁 Repository Structure
 
-Users access the platform over HTTPS.
+```bash
+aws-three-tier-terraform-deploy/
+├── module-vpc/              # VPC, subnets, routing, NAT
+├── module-eks/              # EKS cluster and node groups
+├── module-database/         # RDS database resources
+├── module-dns/              # Route53 DNS configuration
+├── docker-git-runner-setup/ # CI/CD runner setup
+├── main.tf                  # Root Terraform configuration
+├── backend.tf               # Remote state backend
+├── variables.tf             # Input variables
+├── terraform.tfvars         # Environment-specific values
+├── output.tf                # Terraform outputs
+├── architecture.png         # Architecture diagram
+└── README.md                # Project documentation
 
-Route53 resolves DNS to an External NLB created by Ingress NGINX.
+🔐 Security & Best Practices
 
-Traffic is routed to:
+IAM roles following least-privilege principles
 
-React frontend
+Private subnets for compute and database layers
 
-Backend API
+No hard-coded secrets in source code
 
-Backend communicates with RDS MySQL (Multi-AZ).
+Terraform remote backend for state management
 
-Internal NLB enables private service communication.
+Modular, reusable Terraform components
 
-ArgoCD synchronizes deployments from GitHub.
+Infrastructure destroyed after validation to reduce cost
 
-Prometheus and Grafana monitor the cluster.
-
-📸 Architecture diagram available in /docs or screenshots
-
-📁 Repository Structure
-.
-├── .github/workflows/
-│   └── cicd.yml
-├── terraform/
-│   ├── vpc/
-│   ├── eks/
-│   ├── rds/
-│   └── route53/
-├── apps/
-│   ├── backend/
-│   └── frontend/
-├── k8s/
-│   ├── namespace.yaml
-│   ├── backend.yaml
-│   ├── frontend.yaml
-│   ├── ingress-option1-subdomains.yaml
-│   ├── internal-nlb.yaml
-│   ├── argocd-ingress.yaml
-│   └── grafana-ingress.yaml
-├── argocd/
-│   └── novatrust-app.yaml
-└── README.md
-
-🔐 Phase 0 — Repository Cleanup
-
-Forked original repository
-
-Removed old branding and secrets
-
-Standardized naming
-
-Added secure .gitignore
-
-git grep -n "AKIA\|SECRET\|example.com" || true
-
-🔑 Phase 1 — GitHub Secrets & Variables
-Secrets
-
-AWS_ACCESS_KEY_ID
-
-AWS_SECRET_ACCESS_KEY
-
-AWS_REGION
-
-Variables
-
-EKS_CLUSTER_NAME = novatrust-eks-prod
-
-⚙️ Phase 2 — CI/CD with GitHub Actions
-
-CI pipeline performs:
-
-Terraform init
-
-Format check
-
-Validation
-
-Plan
-
-Apply
-
+⚙️ Infrastructure Provisioning Workflow
+Initialize Terraform
 terraform init
+
+Validate Configuration
 terraform fmt -recursive
 terraform validate
+
+Plan Deployment
+terraform plan
+
+Apply Infrastructure
 terraform apply -auto-approve
 
-☁️ Phase 3 — Infrastructure Provisioning
+☁️ AWS Resources Provisioned
 
-Provisioned using Terraform:
+VPC with public and private subnets
 
-VPC with public/private subnets
+Internet Gateway & NAT Gateway
 
-EKS cluster
+Amazon EKS cluster
 
-RDS MySQL (Multi-AZ)
+Managed node groups
 
-IAM roles and policies
+Amazon RDS (private networking)
 
 Route53 hosted zone
 
-☸️ Phase 4 — Kubernetes Setup
-aws eks update-kubeconfig \
-  --name novatrust-eks-prod \
-  --region us-east-1
+IAM roles and policies
 
-kubectl get nodes
+🧹 Cost Management
 
-🌐 Phase 5 — Ingress NGINX (External NLB)
-helm install ingress-nginx ingress-nginx/ingress-nginx \
-  --namespace ingress-nginx --create-namespace \
-  --set controller.service.annotations."service\.beta\.kubernetes\.io/aws-load-balancer-type"="nlb"
+After validating the deployment and documenting outcomes, all infrastructure was intentionally destroyed to prevent unnecessary AWS charges.
 
-🔐 Phase 6 — TLS with cert-manager
-
-cert-manager installed
-
-Let’s Encrypt ClusterIssuer configured
-
-Automatic certificate renewal enabled
-
-🔄 Phase 7 — GitOps with ArgoCD
-
-ArgoCD installed in argocd namespace
-
-Git repository used as single source of truth
-
-Automated sync enabled
-
-kubectl get applications -n argocd
-
-📊 Phase 8 — Monitoring
-
-Prometheus for metrics collection
-
-Grafana for visualization
-
-Dashboards exposed securely via HTTPS
-
-🧩 Phase 9 — Application Services
-Backend API
-
-Node.js + Express
-
-Health endpoint: /health
-
-Dockerized
-
-Frontend
-
-React (Vite)
-
-Fetches backend health status
-
-Served via NGINX
-
-🐳 Phase 10 — Docker Images
-docker build -t <user>/novatrust-api:1.0.0 .
-docker push <user>/novatrust-api:1.0.0
-
-docker build -t <user>/novatrust-web:1.0.0 .
-docker push <user>/novatrust-web:1.0.0
-
-☸️ Phase 11 — Kubernetes Manifests
-
-Deployed:
-
-Deployments
-
-Services
-
-Ingress (TLS)
-
-Internal NLB
-
-kubectl apply -f k8s/
-
-🌐 Phase 12 — DNS (Route53)
-
-Configured records:
-
-emmaubani.online
-
-api.emmaubani.online
-
-argocd.emmaubani.online
-
-grafana.emmaubani.online
-
-✅ Phase 13 — Validation
-curl https://emmaubani.online
-curl https://api.emmaubani.online/health
-
-🧹 Cleanup (Cost Control)
 terraform destroy -auto-approve
 
 📚 What I Learned
 
-Building production-ready AWS EKS infrastructure
+Designing production-ready AWS architectures
 
-Writing clean Terraform modules
+Writing clean, modular Terraform code
 
-GitOps deployment workflows
+Managing Kubernetes infrastructure with EKS
 
-Kubernetes networking & TLS
+Secure cloud networking patterns
 
-Monitoring cloud-native systems
-
-Cost optimization strategies
+Infrastructure lifecycle and cost optimization
 
 Presenting real-world cloud projects professionally
 
 👨🏽‍💻 Author
 
 Ubani Obiajulum Emmanuel
-Cloud & DevOps Engineer
-🔗 GitHub: https://github.com/Eaglewings966
+Cloud & DevOps Engineer (in training)
+
+🔗 GitHub: https://github.com/Eaglewings966/aws-three-tier-terraform-deploy.git
 
 ⭐ Final Note
 
-This repository showcases real-world DevOps, Cloud, and Kubernetes engineering practices suitable for mid-level to senior cloud roles.
+This repository showcases hands-on DevOps and cloud engineering practice, focusing on real-world infrastructure design, security, and operational discipline rather than theory.
+
+Built, validated, documented, and responsibly destroyed — the professional way.
