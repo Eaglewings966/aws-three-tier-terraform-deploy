@@ -164,5 +164,5 @@ variable "repository_name" {
 variable "email" {
   description = "Email address for notifications and certificates"
   type        = string
-  default     = "support@digitalwitchng.online"
+  default     = "support@NovaTrust Bankng.online"
 }
