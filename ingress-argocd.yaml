@@ -11,10 +11,10 @@ spec:
   ingressClassName: external-nginx
   tls:
   - hosts:
-    - argocd.cloudwitches.online
-    secretName: argocd-cloudwitches-online
+    - argocd. emmaubani.online
+    secretName: argocd-emmaubani-online
   rules:
-  - host: argocd.cloudwitches.online
+  - host: argocd.emmaubani.online
     http:
       paths:
       - path: /

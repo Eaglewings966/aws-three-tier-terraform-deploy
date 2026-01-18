@@ -1,7 +1,9 @@
 terraform {
   backend "s3" {
-    bucket = "NovaTrust Bankngbucketcloud1"
-    key    = "NovaTrust Bankng/prodution/terraform.tfstate"
-    region = "us-west-1"
+    bucket         = "novatrust-terraform-state"
+    key            = "env/terraform.tfstate"
+    region         = "us-east-1"
+    dynamodb_table = "terraform-locks"
+    encrypt        = true
   }
 }

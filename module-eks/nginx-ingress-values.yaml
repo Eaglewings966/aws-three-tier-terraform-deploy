@@ -1,12 +1,26 @@
---- 
 controller:
-  ingressClassResource:
-    name: external-nginx
+  replicaCount: 2
   service:
-    enabled: true
+    type: LoadBalancer
     annotations:
-      service.beta.kubernetes.io/aws-load-balancer-type: "nlb"
-      service.beta.kubernetes.io/aws-load-balancer-nlb-target-type: "ip"
-      service.beta.kubernetes.io/aws-load-balancer-scheme: "internet-facing"
-      
-      
+      service.beta.kubernetes.io/aws-load-balancer-type: nlb
+      service.beta.kubernetes.io/aws-load-balancer-internal: "false"
+  metrics:
+    enabled: true
+  admissionWebhooks:
+    enabled: true
+
+defaultBackend:
+  enabled: true
+
+rbac:
+  create: true
+
+# Optional: enable Prometheus scraping
+controller:
+  metrics:
+    enabled: true
+    service:
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "10254"

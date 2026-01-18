@@ -1,0 +1,36 @@
+# ========== AWS Configuration ==========
+region = "us-east-1"
+environment = "production"
+
+# ========== VPC Configuration ==========
+vpc_cidr = "10.0.0.0/16"
+vpc_cidrblock = "192.168.0.0/16"
+public_subnet_count = 2
+private_subnet_count = 2
+availability_zones = ["us-east-1a", "us-east-1b"]
+create_subnet = true
+countsub = 2
+create_elastic_ip = true
+
+# ========== EKS Configuration ==========
+cluster_name = "production-eks"
+eks_version = "1.28"
+desired_size = 2
+max_size = 4
+min_size = 1
+instance_types = ["t3.medium"]
+capacity_type = "ON_DEMAND"
+ami_type = "AL2_x86_64"
+label_one = "app-nodes"
+
+# ========== Application Configuration ==========
+domain_name = "emmaubani.online"
+email = "eaglewynx@gmail.com"
+repository_name = "myapp"
+
+# ========== Database Configuration ==========
+db_instance_class = "db.t3.small"
+db_allocated_storage = 20
+db_username = "appadmin"
+db_password = "ChangeThisPassword123!"  # CHANGE THIS!
+db_name = "app_production"

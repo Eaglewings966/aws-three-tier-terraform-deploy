@@ -1,0 +1,24 @@
+output "cluster_endpoint" {
+  value = aws_eks_cluster.eks.endpoint
+}
+
+output "cluster_certificate_authority_data" {
+  value = aws_eks_cluster.eks.certificate_authority[0].data
+}
+
+output "cluster_id" {
+  value = aws_eks_cluster.eks.name
+}
+
+# Comment out until nginx service is created
+# output "nginx_ingress_lb_dns" {
+#   value = kubernetes_service.nginx.status[0].load_balancer[0].ingress[0].hostname
+# }
+# 
+# output "nginx_lb_ip" {
+#   value = kubernetes_service.nginx.status[0].load_balancer[0].ingress[0].ip
+# }
+# 
+# output "nginx_ingress_load_balancer_hostname" {
+#   value = kubernetes_service.nginx.status[0].load_balancer[0].ingress[0].hostname
+# }

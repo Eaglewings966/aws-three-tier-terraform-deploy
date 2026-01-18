@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
       - name: nginx
-        image: smartcloud2022/edu:v1
+        image: emmaubanicloud/edu:v1
         ports:
         - containerPort: 80
 ---
@@ -45,10 +45,10 @@ spec:
   ingressClassName: external-nginx
   tls:
   - hosts:
-    - app.cloudwitches.online
-    secretName: app-cloudwitches-online
+    - app.emmaubani.online
+    secretName: app-emmaubani-online
   rules:
-  - host: app.cloudwitches.online
+  - host: app.emmaubani.online
     http:
       paths:
       - path: /
