@@ -15,7 +15,7 @@ module "eks" {
 
   public_subnet_ids  = module.vpc.public_subnet_ids
   private_subnet_ids = module.vpc.private_subnet_ids
-  domain_name        = var.domain_name
+  domain-name        = var.domain_name
   email              = var.email
   repository_name    = var.repository_name
   cluster_name       = var.cluster_name
@@ -55,6 +55,6 @@ module "database" {
 # source = "./module-dns"
 
 #  enabled     = var.create_dns_records
-# domain_name = var.domain_name
+# domain-name = var.domain_name
 # environment = var.environment
 # }
