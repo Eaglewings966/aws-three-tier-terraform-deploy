@@ -93,7 +93,7 @@ variable "repository_name" {
   type = string
 }
 
-variable "domain-name" {
+variable "domain_name" {
   type = string
 }
 
