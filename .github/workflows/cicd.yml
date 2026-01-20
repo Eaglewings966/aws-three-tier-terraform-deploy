@@ -12,16 +12,24 @@ permissions:
 jobs:
   deploy-iac:
     runs-on: ubuntu-latest
+
     env:
       AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
       AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
       AWS_REGION: ${{ secrets.AWS_REGION }}
       EKS_CLUSTER_NAME: ${{ secrets.PRODUCTION_EKS_CLUSTER }}
-      ECR_REPO_URI: ${{ secrets.ECR_REPO_URI }}  # Updated to use GitHub secret
+      ECR_REPO_URI: ${{ secrets.ECR_REPO_URI }}
+
     steps:
+      # =========================
+      # Checkout Source Code
+      # =========================
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      # =========================
+      # Install AWS CLI
+      # =========================
       - name: Install AWS CLI
         run: |
           curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
@@ -29,6 +37,9 @@ jobs:
           sudo ./aws/install --bin-dir /usr/local/bin --install-dir /usr/local/aws-cli --update
           aws --version
 
+      # =========================
+      # Configure AWS Credentials
+      # =========================
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
@@ -36,76 +47,10 @@ jobs:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
 
+      # =========================
+      # Setup Terraform
+      # =========================
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
 
-      - name: Terraform Init
-        run: terraform init
-
-      - name: Terraform Format
-        run: terraform fmt -recursive
-
-      - name: Terraform Validate
-        run: terraform validate
-
-      - name: Terraform Plan
-        id: terraform-plan
-        run: |
-          terraform plan -out=tfplan
-          echo "plan_status=success" >> $GITHUB_OUTPUT
-
-      - name: Terraform Apply
-        if: steps.terraform-plan.outputs.plan_status == 'success'
-        run: terraform apply -auto-approve
-
-      - name: Install kubectl
-        run: |
-          curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
-          chmod +x ./kubectl
-          sudo mv ./kubectl /usr/local/bin/kubectl
-          kubectl version --client
-
-      - name: Authenticate to EKS Cluster
-        run: |
-          aws eks update-kubeconfig --name ${{ env.EKS_CLUSTER_NAME }} --region ${{ env.AWS_REGION }}
-          kubectl get nodes
-
-      - name: Build Docker Image
-        run: |
-          export GIT_SHA=$(git rev-parse --short HEAD)
-          cd microservices/api
-          docker build -t ${{ env.ECR_REPO_URI }}:$GIT_SHA .
-          aws ecr get-login-password --region ${{ env.AWS_REGION }} | docker login --username AWS --password-stdin ${{ env.ECR_REPO_URI }}
-          docker push ${{ env.ECR_REPO_URI }}:$GIT_SHA
-
-      - name: Update Kubernetes Manifests (GitOps)
-        run: |
-          export GIT_SHA=$(git rev-parse --short HEAD)
-          cd k8s-manifests
-          sed -i "s|image:.*|image: ${{ env.ECR_REPO_URI }}:$GIT_SHA|g" deployment.yaml
-          git config user.name "github-actions"
-          git config user.email "github-actions@github.com"
-          git add .
-          git commit -m "ci: update image tag to $GIT_SHA" || echo "No changes to commit"
-          git push origin main
-
-      - name: Deploy to EKS
-        run: |
-          export GIT_SHA=$(git rev-parse --short HEAD)
-          cd k8s-manifests
-          kubectl apply -f deployment.yaml
-          kubectl apply -f service.yaml
-          kubectl rollout status deployment/bank-backendapi --timeout=300s
-          echo "Deployment completed successfully!"
-          
-          # Display deployment info
-          kubectl get deployments
-          kubectl get services
-          kubectl get pods
-
-      - name: Security Scan
-        run: |
-          export GIT_SHA=$(git rev-parse --short HEAD)
-          curl -sL https://github.com/aquasecurity/trivy/releases/latest/download/trivy_0.44.3_Linux-64bit.tar.gz | tar xz
-          sudo mv trivy /usr/local/bin/
-          trivy image ${{ env.ECR_REPO_URI }}:$GIT_SHA
+      # ==========
