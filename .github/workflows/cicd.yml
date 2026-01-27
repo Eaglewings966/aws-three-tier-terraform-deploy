@@ -53,4 +53,34 @@ jobs:
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
 
-      # ==========
+      # =========================
+      # Initialize Terraform
+      # =========================
+      - name: Terraform Init
+        run: terraform init
+
+      - name: Terraform Format
+        run: terraform fmt -recursive
+
+      - name: Terraform Validate
+        run: terraform validate
+
+      - name: Terraform Plan
+        id: terraform-plan
+        run: |
+          terraform plan -out=tfplan -lock-timeout=5m
+          echo "plan_status=success" >> $GITHUB_OUTPUT
+
+      - name: Terraform Apply
+        if: steps.terraform-plan.outputs.plan_status == 'success'
+        run: terraform apply -lock-timeout=5m tfplan
+
+      - name: Force unlock on failure
+        if: failure()
+        run: |
+          aws dynamodb delete-item \
+            --table-name terraform-locks \
+            --key "LockID={S='novatrust-terraform-state/env/terraform.tfstate'}" \
+            --region ${{ env.AWS_REGION }}
+
+      - name: Install kubectl
