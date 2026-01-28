@@ -1,3 +1,5 @@
+# Demo trigger – NovaTrust CI/CD
+
 name: DeploytoAWSwithTerraform
 
 on:
