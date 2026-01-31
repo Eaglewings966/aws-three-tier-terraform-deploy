@@ -1,6 +1,4 @@
-# Demo trigger – NovaTrust CI/CD
-
-name: DeploytoAWSwithTerraform
+name: Deploy NovaTrust Infrastructure to AWS (Terraform + EKS)
 
 on:
   push:
@@ -13,18 +11,18 @@ permissions:
 
 jobs:
   deploy-iac:
+    name: Provision AWS Infrastructure
     runs-on: ubuntu-latest
 
     env:
       AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
       AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
       AWS_REGION: ${{ secrets.AWS_REGION }}
-      EKS_CLUSTER_NAME: ${{ secrets.PRODUCTION_EKS_CLUSTER }}
-      ECR_REPO_URI: ${{ secrets.ECR_REPO_URI }}
+      EKS_CLUSTER_NAME: production-production-eks
 
     steps:
       # =========================
-      # Checkout Source Code
+      # Checkout Repository
       # =========================
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -56,33 +54,52 @@ jobs:
         uses: hashicorp/setup-terraform@v3
 
       # =========================
-      # Initialize Terraform
+      # Terraform Init
       # =========================
       - name: Terraform Init
         run: terraform init
 
+      # =========================
+      # Terraform Format
+      # =========================
       - name: Terraform Format
         run: terraform fmt -recursive
 
+      # =========================
+      # Terraform Validate
+      # =========================
       - name: Terraform Validate
         run: terraform validate
 
+      # =========================
+      # Terraform Plan
+      # =========================
       - name: Terraform Plan
         id: terraform-plan
-        run: |
-          terraform plan -out=tfplan -lock-timeout=5m
-          echo "plan_status=success" >> $GITHUB_OUTPUT
+        run: terraform plan -out=tfplan -lock-timeout=5m
 
+      # =========================
+      # Terraform Apply
+      # =========================
       - name: Terraform Apply
-        if: steps.terraform-plan.outputs.plan_status == 'success'
         run: terraform apply -lock-timeout=5m tfplan
 
-      - name: Force unlock on failure
-        if: failure()
-        run: |
-          aws dynamodb delete-item \
-            --table-name terraform-locks \
-            --key "LockID={S='novatrust-terraform-state/env/terraform.tfstate'}" \
-            --region ${{ env.AWS_REGION }}
-
+      # =========================
+      # Install kubectl
+      # =========================
       - name: Install kubectl
+        run: |
+          curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
+          chmod +x kubectl
+          sudo mv kubectl /usr/local/bin/kubectl
+          kubectl version --client
+
+      # =========================
+      # Authenticate to EKS
+      # =========================
+      - name: Authenticate to EKS cluster
+        run: |
+          aws eks update-kubeconfig \
+            --name $EKS_CLUSTER_NAME \
+            --region $AWS_REGION
+          kubectl get nodes
